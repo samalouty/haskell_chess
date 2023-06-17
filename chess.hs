@@ -12,8 +12,10 @@ insertAt row col newValue array = take row array ++
                                   drop (row+1) array		  
 
 setBoard :: Board 
-setBoard = (White,[R ('h',1),N ('g',1),B ('f',1),K ('e',1),Q ('d',1),B ('c',1),N ('b',1),R ('a',1),P ('h',2),P ('g',2),P ('f',2),P ('e',2),P ('d',2),P ('c',2),P ('b',2),P ('a',2)] ,[R ('h',8),N ('g',8),B ('f',8),K ('e',8),Q ('d',8),B ('c',8),N ('b',8),R ('a',8),P ('h',7),P ('g',7),P ('f',7),P ('e',7),P ('d',7),P ('c',7),P ('b',7),P ('a',7)])
-			
+setBoard = (White,
+			[R ('h',1),N ('g',1),B ('f',1),K ('e',1),Q ('d',1),B ('c',1),N ('b',1),R ('a',1),P ('h',2),P ('g',2),P ('f',2),P ('e',2),P ('d',2),P ('c',2),P ('b',2),P ('a',2)]
+     		,[R ('h',8),N ('g',8),B ('f',8),K ('e',8),Q ('d',8),B ('c',8),N ('b',8),R ('a',8),P ('h',7),P ('g',7),P ('f',7),P ('e',7),P ('d',7),P ('c',7),P ('b',7),P ('a',7)])
+
 boardRows :: [[String]]
 boardRows = [[" ", " ", "a", "   ", "b", "  ", "c", "  ", "d", "  ", "e", "  ", "f", "  ", "g", "  ", "h", " "],
                  ["8", "|", "  ", "|", "  ", "|", "  ", "|", "  ", "|", "  ", "|", "  ", "|", "  ", "|", "  ", "|"],
@@ -380,12 +382,12 @@ then error "This is White player's turn, Black can't move."
 else if isLegal piece (player, whitePieces, blackPieces) loc == False 
 then error ("Illegal move for piece " ++ pieceToString2 piece ++ ".")
 else if piece `elem` whitePieces && loc `elem` (locationsBlack whitePieces blackPieces)
-then (player, map (\p -> if p == piece then updateLocation p loc else p) whitePieces, delete (pieceLocation loc (player, whitePieces, blackPieces)) blackPieces)
+then (switch player, map (\p -> if p == piece then updateLocation p loc else p) whitePieces, delete (pieceLocation loc (player, whitePieces, blackPieces)) blackPieces)
 else if piece `elem` whitePieces 
-then (player, map (\p -> if p == piece then updateLocation p loc else p) whitePieces, blackPieces) 
+then (switch player, map (\p -> if p == piece then updateLocation p loc else p) whitePieces, blackPieces) 
 else if piece `elem` blackPieces && loc `elem` (locationsWhite whitePieces blackPieces) 
-then (player, delete (pieceLocation loc (player, whitePieces, blackPieces)) whitePieces, map (\p -> if p == piece then updateLocation p loc else p) blackPieces)
-else (player, whitePieces, map (\p -> if p == piece then updateLocation p loc else p) blackPieces)
+then (switch player, delete (pieceLocation loc (player, whitePieces, blackPieces)) whitePieces, map (\p -> if p == piece then updateLocation p loc else p) blackPieces)
+else (switch player, whitePieces, map (\p -> if p == piece then updateLocation p loc else p) blackPieces)
 
 delete :: (Eq a) => a -> [a] -> [a]
 delete y xs = delete'' y xs []
@@ -393,6 +395,9 @@ delete y xs = delete'' y xs []
                        delete'' d (a:as) acc
                          | a == d    = reverse acc ++ as
                          | otherwise = delete'' d as (a:acc)
+
+switch :: Player -> Player
+switch x = if x==White then Black else White
 
 pieceToString2 :: Piece -> String
 pieceToString2 (P (x, y)) = "P ('" ++ [x] ++ "', " ++ show y ++ ")"
